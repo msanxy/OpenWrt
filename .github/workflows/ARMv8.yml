@@ -32,6 +32,9 @@ jobs:
       DEVICE_SUBTARGET: ${{ steps.variable.outputs.DEVICE_SUBTARGET }}
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
     - name: Check Server Performance
       run: |
         echo "警告⚠"
@@ -60,16 +63,6 @@ jobs:
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get -y clean
         sudo timedatectl set-timezone "$TZ"
-
-    - name: Combine Disks
-      uses: easimon/maximize-build-space@master
-      with:
-        swap-size-mb: 1024
-        temp-reserve-mb: 100
-        root-reserve-mb: 1024
-
-    - name: Checkout
-      uses: actions/checkout@main
 
     - name: Clone Source Code
       id: clone
@@ -191,6 +184,19 @@ jobs:
         artifacts: ${{ env.FIRMWARE_PATH }}/*
         body: |
           **This is Temporary Firmware for Armvirt 64**
+          ### 📒 固件信息
+          - 🚀 成品固件点击此处跳转➦[ARMv8](https://github.com/haiibo/OpenWrt/releases/tag/ARMv8)即可下载
+          - 💻 平台架构: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }} (精简版临时固件)
+          - ⚽ 固件源码: ${{ env.REPO_URL }}
+          - 💝 源码分支: ${{ env.REPO_BRANCH }}
+          - 🌐 默认地址: 192.168.1.1
+          - 🔑 默认密码: password
+          ### 🧊 固件版本
+          - 固件编译前最后一次➦[主源码](${{ env.REPO_URL }})更新记录
+          - ${{ env.COMMIT_AUTHOR }}
+          - ${{ env.COMMIT_DATE }}
+          - ${{ env.COMMIT_MESSAGE }}
+          - ${{ env.COMMIT_HASH }}
 
   Package:
     needs: [Build]
@@ -242,43 +248,41 @@ jobs:
         KERNEL_AUTO_LATEST: true
         DISTRIB_REVISION: R${{ env.DATE1 }}
 
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
+    - name: Upload OpenWrt To Artifact
+      if: env.PACKAGED_STATUS == 'success' && env.OPENWRT_RELEASE != 'true'
+      uses: kittaakos/upload-artifact-as-is@master
       with:
-        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}
+        path: ${{ env.PACKAGED_OUTPUTPATH }}
 
-    - name: Generate release tag
-      id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
-        touch release.txt
-        [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
-        echo "status=success" >> $GITHUB_OUTPUT
-
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@master
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Upload OpenWrt To Release
+      if: env.PACKAGED_STATUS == 'success' && env.OPENWRT_RELEASE == 'true'
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
-
-    - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 0
-        keep_minimum_runs: 2
-
-    - name: Remove old Releases
-      uses: dev-drprasad/delete-older-releases@master
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 3
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        name: R${{ env.DATE }} for ${{ env.OPENWRT_TAG }}
+        allowUpdates: true
+        removeArtifacts: true
+        tag: ${{ env.OPENWRT_TAG }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
+        body: |
+          **This is OpenWrt Firmware for Armvirt 64**
+          ### 📒 固件信息
+          - 🚀 ARMv8 自用精简版
+          - 💻 平台架构: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}
+          - ⚽ 固件源码: ${{ env.REPO_URL }}
+          - 💝 源码分支: ${{ env.REPO_BRANCH }}
+          - 🌐 默认地址: 192.168.1.1
+          - 🔑 默认密码: password
+          ### 🍻 安装与更新
+          - 用插件安装: 系统 → 晶晨宝盒 → 安装 OpenWrt → 选择型号 → 安装
+          - 用命令安装: U盘启动成功后输入命令 `openwrt-install-amlogic` 按照英文提示写入到 emmc
+          - 用插件更新: 系统 → 晶晨宝盒 → 在线下载更新 → 完整更新全系统
+          - 用命令更新: 上传固件到 `/mnt/mmcblk2p4` 目录，输入命令 `openwrt-update-amlogic` 即可更新
+          - 注意: 如非 `amlogic` 平台，请将其更改为对应平台 `rockchip` `allwinner`
+          - 部分常见问题及注意事项请参考恩山论坛F大➦[最新帖](https://www.right.com.cn/forum/thread-4076037-1-1.html)
+          ### 🧊 固件版本
+          - 固件编译前最后一次➦[主源码](${{ env.REPO_URL }})更新记录
+          - ${{ env.COMMIT_AUTHOR }}
+          - ${{ env.COMMIT_DATE }}
+          - ${{ env.COMMIT_MESSAGE }}
+          - ${{ env.COMMIT_HASH }}
