@@ -235,26 +235,26 @@ jobs:
         KERNEL_AUTO_LATEST: true
         DISTRIB_REVISION: R${{ env.DATE1 }}
 
-    - name: Upload OpenWrt Firmware to Release
-        uses: ncipollo/release-action@main
-        if: ${{ env.PACKAGED_STATUS }} == 'success' && !cancelled()
-        with:
-          tag: ${{ steps.download.outputs.build_tag }}
-          artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
-          allowUpdates: true
-          removeArtifacts: false
-          replacesArtifacts: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-          body: |
-            ### OpenWrt Image information
+    - name: Upload Firmware To Release
+      if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
+      uses: ncipollo/release-action@v1
+      with:
+        name: R${{ env.DATE }} for ${{ env.FIRMWARE_TAG }}
+        allowUpdates: true
+        tag: ${{ env.FIRMWARE_TAG }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        artifacts: ${{ env.FIRMWARE_PATH }}/*
+        body: |
+          **This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}**
+          ### OpenWrt Image information
             - Default IP: 192.168.1.1
             - Default username: root
             - Default password: password
             - Default WIFI name: OpenWrt
             - Default WIFI password: none
-            ### Install to EMMC
+          ### Install to EMMC
             - Login to OpenWrt → System → Amlogic Service → Install OpenWrt
-            ### OpenWrt source code
+          ### OpenWrt source code
             - [lede](https://github.com/coolsnowwolf/lede)
-            ### OpenWrt Image Verification
+          ### OpenWrt Image Verification
             - sha256sum
