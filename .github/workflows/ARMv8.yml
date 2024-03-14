@@ -252,7 +252,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ${{ env.PACKAGED_OUTPUTPATH }}/*
         body: |
-          **This is OpenWrt Firmware for ${{ env.FIRMWARE_TAG }}**
+          **This is OpenWrt Firmware for ${{ env.OPENWRT_TAG }}**
           ### OpenWrt Image information
             - Default IP: 192.168.1.1
             - Default username: root
