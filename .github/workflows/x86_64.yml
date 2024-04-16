@@ -8,7 +8,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: x86_64_k6.6
+name: x86_64
 
 on:
   repository_dispatch:
@@ -31,7 +31,7 @@ env:
   UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FILE_NAME: x86_64_k6.6
+  FILE_NAME: x86_64
   PRODUCT_NAME: x86_64
 
 jobs:
