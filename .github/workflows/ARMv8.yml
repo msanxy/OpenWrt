@@ -31,8 +31,8 @@ env:
   UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  FIRMWARE_TAG: ROOTFS_MINI
-  OPENWRT_TAG: ARMv8_MINI
+  FIRMWARE_TAG: ROOTFS
+  OPENWRT_TAG: ARMv8
 
 jobs:
   build:
