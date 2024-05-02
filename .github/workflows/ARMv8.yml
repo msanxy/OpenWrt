@@ -251,9 +251,9 @@ jobs:
         OPENWRT_ARMVIRT: openwrt/bin/targets/*/*/*rootfs.tar.gz
         PACKAGE_SOC: all
         WHOAMI: msanxy
-        KERNEL_VERSION_NAME: 5.15.13_6.1.5
+        KERNEL_VERSION_NAME: 6.1.86_6.6.27
         KERNEL_AUTO_LATEST: true
-        DISTRIB_REVISION: R${{ env.DATE1 }} by Haiibo
+        DISTRIB_REVISION: R${{ env.DATE1 }} 
 
     - name: Upload OpenWrt To Artifact
       if: env.PACKAGED_STATUS == 'success' && env.OPENWRT_RELEASE != 'true'
