@@ -193,7 +193,7 @@ jobs:
           **This is Temporary Firmware for Armvirt 64**
           ### 📒 固件信息
           - 🚀 成品固件点击此处跳转➦[固件](https://github.com/msanxy/OpenWrt/releases/tag/ARMv8)即可下载
-          - 💻 平台架构: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }} (多功能临时固件)
+          - 💻 平台架构: ${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }} (临时固件)
           - ⚽ 固件源码: ${{ env.REPO_URL }}
           - 💝 源码分支: ${{ env.REPO_BRANCH }}
           - 🌐 默认地址: 192.168.1.1
